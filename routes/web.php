@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CareerController;
 use App\Http\Controllers\SendEmailController;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +36,8 @@ Route::get('/careers/fr', [CareerController::class, 'indexFr'])->name('careers-f
 Route::view('/login', 'login')->name('login');
 Route::view('/login/en', 'login-en')->name('login-en');
 Route::view('/login/fr', 'login-fr')->name('login-fr');
+
+Route::post('/login', [LoginController::class, 'login'])->name('login');
 
 // Terms pages
 Route::view('/terms', 'terms')->name('terms');
@@ -157,6 +160,6 @@ Route::view('/health/hms/en', 'health-hms-en')->name('health-hms-en');
 Route::view('/health/hms/fr', 'health-hms-fr')->name('health-hms-fr');
 
 // Sovereign Systems
-Route::view('/sovereign-systems', 'sovereign-systems')->name('sovereign-systems');
-Route::view('/sovereign-systems/en', 'sovereign-systems-en')->name('sovereign-systems-en');
-Route::view('/sovereign-systems/fr', 'sovereign-systems-fr')->name('sovereign-systems-fr');
+Route::view('/sovereign-systems', 'sovereign-systems')->name('sovereign-systems')->middleware('auth');
+Route::view('/sovereign-systems/en', 'sovereign-systems-en')->name('sovereign-systems-en')->middleware('auth');
+Route::view('/sovereign-systems/fr', 'sovereign-systems-fr')->name('sovereign-systems-fr')->middleware('auth');

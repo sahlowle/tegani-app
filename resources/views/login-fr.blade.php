@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+﻿@extends('layouts.auth')
 
 @section('title', 'Connexion - Systèmes Biométriques | Software Makers Company')
 
@@ -28,22 +28,26 @@
             </div>
         </div>
         <div class="login-body">
-            <div id="errorMessage" class="alert alert-danger" style="display: none;" role="alert"></div>
-            <form id="loginForm">
+            @error('email')
+                <div id="errorMessage" class="alert alert-danger" role="alert">{{ $message }}</div>
+            @enderror
+            
+            <form id="loginForm" action="{{ route('login') }}" method="POST">
+                @csrf
                 <div class="form-group">
-                    <label for="username">
-                        <i class="fas fa-user-shield"></i>
-                        Identifiant Utilisateur
+                    <label for="email">
+                        <i class="fas fa-envelope"></i>
+                        Email
                     </label>
                     <div class="input-icon-wrapper">
-                        <i class="fas fa-user input-icon"></i>
-                        <input type="text" class="form-control has-icon" id="username" name="username" required autocomplete="username" placeholder="Entrez votre identifiant">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" class="form-control has-icon" id="email" name="email" required autocomplete="email" placeholder="Entrez votre email">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="password">
                         <i class="fas fa-key"></i>
-                        Mot de Passe Chiffré
+                        Mot de Passe
                     </label>
                     <div class="input-icon-wrapper">
                         <i class="fas fa-lock input-icon"></i>
@@ -132,58 +136,58 @@
         const REQUIRED_PASSWORD = 'saudia-arabia';
 
         // Gérer la soumission du formulaire de connexion
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // document.getElementById('loginForm').addEventListener('submit', function(e) {
+        //     e.preventDefault();
             
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const errorDiv = document.getElementById('errorMessage');
-            const submitBtn = document.querySelector('.btn-login');
+        //     const username = document.getElementById('username').value.trim();
+        //     const password = document.getElementById('password').value.trim();
+        //     const errorDiv = document.getElementById('errorMessage');
+        //     const submitBtn = document.querySelector('.btn-login');
             
-            // Masquer le message d'erreur
-            errorDiv.style.display = 'none';
+        //     // Masquer le message d'erreur
+        //     errorDiv.style.display = 'none';
             
-            // Vérifier si les champs ne sont pas vides
-            if (!username || !password) {
-                errorDiv.textContent = 'Veuillez entrer votre identifiant et votre mot de passe';
-                errorDiv.style.display = 'block';
-                return;
-            }
+        //     // Vérifier si les champs ne sont pas vides
+        //     if (!username || !password) {
+        //         errorDiv.textContent = 'Veuillez entrer votre identifiant et votre mot de passe';
+        //         errorDiv.style.display = 'block';
+        //         return;
+        //     }
             
-            // Effet de balayage biométrique
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span>Vérification en cours...</span>';
-            submitBtn.disabled = true;
+        //     // Effet de balayage biométrique
+        //     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span>Vérification en cours...</span>';
+        //     submitBtn.disabled = true;
             
-            // Simuler le processus de vérification biométrique
-            setTimeout(() => {
-                // Vérifier les identifiants de connexion
-                if (username === REQUIRED_USERNAME && password === REQUIRED_PASSWORD) {
-                    // Enregistrer l'état de connexion dans localStorage
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('username', username);
+        //     // Simuler le processus de vérification biométrique
+        //     setTimeout(() => {
+        //         // Vérifier les identifiants de connexion
+        //         if (username === REQUIRED_USERNAME && password === REQUIRED_PASSWORD) {
+        //             // Enregistrer l'état de connexion dans localStorage
+        //             localStorage.setItem('isLoggedIn', 'true');
+        //             localStorage.setItem('username', username);
                     
-                    // Message de succès
-                    submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i><span>Vérification Réussie</span>';
-                    submitBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+        //             // Message de succès
+        //             submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i><span>Vérification Réussie</span>';
+        //             submitBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
                     
-                    // Rediriger l'utilisateur vers la page demandée
-                    isRedirecting = true;
-                    setTimeout(() => {
-                        const targetUrl = (redirectUrl && redirectUrl !== 'login-fr.html') ? redirectUrl : 'index-fr.html';
-                        window.location.href = targetUrl;
-                    }, 1000);
-                } else {
-                    // Identifiants invalides
-                    errorDiv.textContent = 'Identifiants de connexion invalides. Veuillez vérifier votre nom d\'utilisateur et votre mot de passe';
-                    errorDiv.style.display = 'block';
-                    submitBtn.innerHTML = '<i class="fas fa-fingerprint me-2"></i><span>Vérifier et Accéder</span>';
-                    submitBtn.disabled = false;
+        //             // Rediriger l'utilisateur vers la page demandée
+        //             isRedirecting = true;
+        //             setTimeout(() => {
+        //                 const targetUrl = (redirectUrl && redirectUrl !== 'login-fr.html') ? redirectUrl : 'index-fr.html';
+        //                 window.location.href = targetUrl;
+        //             }, 1000);
+        //         } else {
+        //             // Identifiants invalides
+        //             errorDiv.textContent = 'Identifiants de connexion invalides. Veuillez vérifier votre nom d\'utilisateur et votre mot de passe';
+        //             errorDiv.style.display = 'block';
+        //             submitBtn.innerHTML = '<i class="fas fa-fingerprint me-2"></i><span>Vérifier et Accéder</span>';
+        //             submitBtn.disabled = false;
                     
-                    // Restaurer les couleurs originales du bouton
-                    submitBtn.style.background = 'linear-gradient(135deg, #00d4ff 0%, #667eea 100%)';
-                }
-            }, 1500);
-        });
+        //             // Restaurer les couleurs originales du bouton
+        //             submitBtn.style.background = 'linear-gradient(135deg, #00d4ff 0%, #667eea 100%)';
+        //         }
+        //     }, 1500);
+        // });
 
         // Chargement de la page - sans redirection automatique
         let isRedirecting = false; // Empêcher les redirections répétées

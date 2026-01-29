@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+﻿@extends('layouts.auth')
 
 @section('title', 'Login - Biometric Systems | Software Makers Company')
 
@@ -28,22 +28,26 @@
             </div>
         </div>
         <div class="login-body">
-            <div id="errorMessage" class="alert alert-danger" style="display: none;" role="alert"></div>
-            <form id="loginForm">
+            @error('email')
+                <div id="errorMessage" class="alert alert-danger" role="alert">{{ $message }}</div>
+            @enderror
+
+            <form id="loginForm" action="{{ route('login') }}" method="POST">
+                @csrf
                 <div class="form-group">
-                    <label for="username">
-                        <i class="fas fa-user-shield"></i>
-                        User ID
+                    <label for="email">
+                        <i class="fas fa-envelope"></i>
+                        Email
                     </label>
                     <div class="input-icon-wrapper">
-                        <i class="fas fa-user input-icon"></i>
-                        <input type="text" class="form-control has-icon" id="username" name="username" required autocomplete="username" placeholder="Enter your user ID">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" class="form-control has-icon" id="email" name="email" required autocomplete="email" placeholder="Enter your email">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="password">
                         <i class="fas fa-key"></i>
-                        Encrypted Password
+                        Password
                     </label>
                     <div class="input-icon-wrapper">
                         <i class="fas fa-lock input-icon"></i>
@@ -131,59 +135,59 @@
         const REQUIRED_USERNAME = 'smlc-sa';
         const REQUIRED_PASSWORD = 'saudia-arabia';
 
-        // Handle login form submission
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // // Handle login form submission
+        // document.getElementById('loginForm').addEventListener('submit', function(e) {
+        //     e.preventDefault();
             
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const errorDiv = document.getElementById('errorMessage');
-            const submitBtn = document.querySelector('.btn-login');
+        //     const username = document.getElementById('username').value.trim();
+        //     const password = document.getElementById('password').value.trim();
+        //     const errorDiv = document.getElementById('errorMessage');
+        //     const submitBtn = document.querySelector('.btn-login');
             
-            // Hide error message
-            errorDiv.style.display = 'none';
+        //     // Hide error message
+        //     errorDiv.style.display = 'none';
             
-            // Check if fields are not empty
-            if (!username || !password) {
-                errorDiv.textContent = 'Please enter your user ID and password';
-                errorDiv.style.display = 'block';
-                return;
-            }
+        //     // Check if fields are not empty
+        //     if (!username || !password) {
+        //         errorDiv.textContent = 'Please enter your user ID and password';
+        //         errorDiv.style.display = 'block';
+        //         return;
+        //     }
             
-            // Biometric scan effect
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span>Verifying...</span>';
-            submitBtn.disabled = true;
+        //     // Biometric scan effect
+        //     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span>Verifying...</span>';
+        //     submitBtn.disabled = true;
             
-            // Simulate biometric verification process
-            setTimeout(() => {
-                // Verify login credentials
-                if (username === REQUIRED_USERNAME && password === REQUIRED_PASSWORD) {
-                    // Save login state in localStorage
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('username', username);
+        //     // Simulate biometric verification process
+        //     setTimeout(() => {
+        //         // Verify login credentials
+        //         if (username === REQUIRED_USERNAME && password === REQUIRED_PASSWORD) {
+        //             // Save login state in localStorage
+        //             localStorage.setItem('isLoggedIn', 'true');
+        //             localStorage.setItem('username', username);
                     
-                    // Success message
-                    submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i><span>Verification Successful</span>';
-                    submitBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+        //             // Success message
+        //             submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i><span>Verification Successful</span>';
+        //             submitBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
                     
-                    // Redirect user to requested page
-                    isRedirecting = true;
-                    setTimeout(() => {
-                        const targetUrl = (redirectUrl && redirectUrl !== 'login-en.html') ? redirectUrl : 'index-en.html';
-                        window.location.href = targetUrl;
-                    }, 1000);
-                } else {
-                    // Invalid credentials
-                    errorDiv.textContent = 'Invalid login credentials. Please check your username and password';
-                    errorDiv.style.display = 'block';
-                    submitBtn.innerHTML = '<i class="fas fa-fingerprint me-2"></i><span>Verify & Access</span>';
-                    submitBtn.disabled = false;
+        //             // Redirect user to requested page
+        //             isRedirecting = true;
+        //             setTimeout(() => {
+        //                 const targetUrl = (redirectUrl && redirectUrl !== 'login-en.html') ? redirectUrl : 'index-en.html';
+        //                 window.location.href = targetUrl;
+        //             }, 1000);
+        //         } else {
+        //             // Invalid credentials
+        //             errorDiv.textContent = 'Invalid login credentials. Please check your username and password';
+        //             errorDiv.style.display = 'block';
+        //             submitBtn.innerHTML = '<i class="fas fa-fingerprint me-2"></i><span>Verify & Access</span>';
+        //             submitBtn.disabled = false;
                     
-                    // Restore original button colors
-                    submitBtn.style.background = 'linear-gradient(135deg, #00d4ff 0%, #667eea 100%)';
-                }
-            }, 1500);
-        });
+        //             // Restore original button colors
+        //             submitBtn.style.background = 'linear-gradient(135deg, #00d4ff 0%, #667eea 100%)';
+        //         }
+        //     }, 1500);
+        // });
 
         // Page load - without any automatic redirect
         let isRedirecting = false; // Prevent repeated redirects

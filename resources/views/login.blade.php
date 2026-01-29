@@ -1,9 +1,10 @@
-﻿@extends('layouts.app')
+﻿@extends('layouts.auth')
 
 @section('title', 'تسجيل الدخول - الأنظمة البيومترية | شركة صناع البرمجيات')
 
 @section('content')
-<div class="biometric-grid"></div>
+
+    <div class="biometric-grid"></div>
     <div class="scan-lines"></div>
     
     <!-- الجسيمات -->
@@ -28,22 +29,27 @@
             </div>
         </div>
         <div class="login-body">
-            <div id="errorMessage" class="alert alert-danger" style="display: none;" role="alert"></div>
-            <form id="loginForm">
+            @error('email')
+                <div id="errorMessage" class="alert alert-danger" role="alert">{{ $message }}</div>
+            @enderror
+
+            <form id="loginForm" action="{{ route('login') }}" method="POST">
+                @csrf
                 <div class="form-group">
                     <label for="username">
-                        <i class="fas fa-user-shield"></i>
-                        معرف المستخدم
+                        <i class="fas fa-envelope"></i>
+                        البريد الالكتروني 
                     </label>
                     <div class="input-icon-wrapper">
-                        <i class="fas fa-user input-icon"></i>
-                        <input type="text" class="form-control has-icon" id="username" name="username" required autocomplete="username" placeholder="أدخل معرف المستخدم">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" class="form-control has-icon" id="username" name="email" required autocomplete="username" placeholder="أدخل البريد الالكتروني">
+                        
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="password">
                         <i class="fas fa-key"></i>
-                        كلمة المرور المشفرة
+                        كلمة المرور 
                     </label>
                     <div class="input-icon-wrapper">
                         <i class="fas fa-lock input-icon"></i>
@@ -107,101 +113,103 @@
         </div>
     </div>
 
-    <script>
-        // إنشاء الجسيمات المتحركة
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            const particleCount = 20;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 15 + 's';
-                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
-                particlesContainer.appendChild(particle);
-            }
-        }
-
-        // الحصول على معامل redirect من URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectUrl = urlParams.get('redirect') || 'index.html';
-
-        // بيانات تسجيل الدخول المطلوبة
-        const REQUIRED_USERNAME = 'smlc-sa';
-        const REQUIRED_PASSWORD = 'saudia-arabia';
-
-        // معالجة تسجيل الدخول
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const errorDiv = document.getElementById('errorMessage');
-            const submitBtn = document.querySelector('.btn-login');
-            
-            // إخفاء رسالة الخطأ
-            errorDiv.style.display = 'none';
-            
-            // التحقق من أن الحقول غير فارغة
-            if (!username || !password) {
-                errorDiv.textContent = 'يرجى إدخال معرف المستخدم وكلمة المرور';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
-            // تأثير المسح البيومتري
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span>جارٍ التحقق...</span>';
-            submitBtn.disabled = true;
-            
-            // محاكاة عملية التحقق البيومتري
-            setTimeout(() => {
-                // التحقق من بيانات تسجيل الدخول
-                if (username === REQUIRED_USERNAME && password === REQUIRED_PASSWORD) {
-                    // حفظ حالة تسجيل الدخول في localStorage
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('username', username);
-                    
-                    // رسالة نجاح
-                    submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i><span>تم التحقق بنجاح</span>';
-                    submitBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
-                    
-                    // توجيه المستخدم إلى الصفحة المطلوبة
-                    isRedirecting = true;
-                    setTimeout(() => {
-                        const targetUrl = (redirectUrl && redirectUrl !== 'login.html') ? redirectUrl : 'index.html';
-                        window.location.href = targetUrl;
-                    }, 1000);
-                } else {
-                    // بيانات خاطئة
-                    errorDiv.textContent = 'بيانات تسجيل الدخول غير صحيحة. يرجى التحقق من اسم المستخدم وكلمة المرور';
-                    errorDiv.style.display = 'block';
-                    submitBtn.innerHTML = '<i class="fas fa-fingerprint me-2"></i><span>التحقق والوصول</span>';
-                    submitBtn.disabled = false;
-                    
-                    // إرجاع الألوان الأصلية للزر
-                    submitBtn.style.background = 'linear-gradient(135deg, #00d4ff 0%, #667eea 100%)';
+   @push('scripts')
+        <script>
+            // إنشاء الجسيمات المتحركة
+            function createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                const particleCount = 20;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 15 + 's';
+                    particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                    particlesContainer.appendChild(particle);
                 }
-            }, 1500);
-        });
-
-        // تحميل الصفحة - بدون أي إعادة توجيه تلقائية
-        let isRedirecting = false; // منع إعادة التوجيه المتكررة
-        
-        window.addEventListener('load', function() {
-            createParticles();
-            
-            // التأكد من أن زر تسجيل الدخول مرئي
-            const loginButton = document.getElementById('loginButton');
-            if (loginButton) {
-                loginButton.style.display = 'block';
-                loginButton.style.visibility = 'visible';
-                loginButton.style.opacity = '1';
             }
+
+            // الحصول على معامل redirect من URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect') || 'index.html';
+
+            // بيانات تسجيل الدخول المطلوبة
+            const REQUIRED_USERNAME = 'smlc-sa';
+            const REQUIRED_PASSWORD = 'saudia-arabia';
+
+            // // معالجة تسجيل الدخول
+            // document.getElementById('loginForm').addEventListener('submit', function(e) {
+            //     e.preventDefault();
+                
+            //     const username = document.getElementById('username').value.trim();
+            //     const password = document.getElementById('password').value.trim();
+            //     const errorDiv = document.getElementById('errorMessage');
+            //     const submitBtn = document.querySelector('.btn-login');
+                
+            //     // إخفاء رسالة الخطأ
+            //     errorDiv.style.display = 'none';
+                
+            //     // التحقق من أن الحقول غير فارغة
+            //     if (!username || !password) {
+            //         errorDiv.textContent = 'يرجى إدخال معرف المستخدم وكلمة المرور';
+            //         errorDiv.style.display = 'block';
+            //         return;
+            //     }
+                
+            //     // تأثير المسح البيومتري
+            //     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span>جارٍ التحقق...</span>';
+            //     submitBtn.disabled = true;
+                
+            //     // محاكاة عملية التحقق البيومتري
+            //     setTimeout(() => {
+            //         // التحقق من بيانات تسجيل الدخول
+            //         if (username === REQUIRED_USERNAME && password === REQUIRED_PASSWORD) {
+            //             // حفظ حالة تسجيل الدخول في localStorage
+            //             localStorage.setItem('isLoggedIn', 'true');
+            //             localStorage.setItem('username', username);
+                        
+            //             // رسالة نجاح
+            //             submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i><span>تم التحقق بنجاح</span>';
+            //             submitBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                        
+            //             // توجيه المستخدم إلى الصفحة المطلوبة
+            //             isRedirecting = true;
+            //             setTimeout(() => {
+            //                 const targetUrl = (redirectUrl && redirectUrl !== 'login.html') ? redirectUrl : 'index.html';
+            //                 window.location.href = targetUrl;
+            //             }, 1000);
+            //         } else {
+            //             // بيانات خاطئة
+            //             errorDiv.textContent = 'بيانات تسجيل الدخول غير صحيحة. يرجى التحقق من اسم المستخدم وكلمة المرور';
+            //             errorDiv.style.display = 'block';
+            //             submitBtn.innerHTML = '<i class="fas fa-fingerprint me-2"></i><span>التحقق والوصول</span>';
+            //             submitBtn.disabled = false;
+                        
+            //             // إرجاع الألوان الأصلية للزر
+            //             submitBtn.style.background = 'linear-gradient(135deg, #00d4ff 0%, #667eea 100%)';
+            //         }
+            //     }, 1500);
+            // });
+
+            // تحميل الصفحة - بدون أي إعادة توجيه تلقائية
+            let isRedirecting = false; // منع إعادة التوجيه المتكررة
             
-            // لا نعيد التوجيه تلقائياً - نسمح للمستخدم بإدخال بياناته دائماً
-        });
-    </script>
+            window.addEventListener('load', function() {
+                createParticles();
+                
+                // التأكد من أن زر تسجيل الدخول مرئي
+                const loginButton = document.getElementById('loginButton');
+                if (loginButton) {
+                    loginButton.style.display = 'block';
+                    loginButton.style.visibility = 'visible';
+                    loginButton.style.opacity = '1';
+                }
+                
+                // لا نعيد التوجيه تلقائياً - نسمح للمستخدم بإدخال بياناته دائماً
+            });
+        </script>
+   @endpush
     
     <!-- حماية منع النسخ -->
 @endsection
