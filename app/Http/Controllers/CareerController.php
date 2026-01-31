@@ -17,8 +17,6 @@ class CareerController extends Controller
     public function indexEn()
     {
         $careers = Career::query()->where('status', 'active')->get();
-
-        return response()->json($careers);
         return view('careers-en', compact('careers'));
     }
     
