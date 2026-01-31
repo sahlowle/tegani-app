@@ -1,5 +1,47 @@
 ﻿@extends('layouts.app')
 
+@push('styles')
+    <style>
+        .apply-form .form-control {
+           color: #000000 !important;
+        }
+        .apply-form .form-control::placeholder {
+            color: #000000 !important;
+        }
+        .apply-form .form-select {
+            color: #000000 !important;
+        }
+        .apply-form .form-select::placeholder {
+            color: #000000 !important;
+        }
+        .apply-form .form-select option {
+            color: #000000 !important;
+        }
+        
+        /* Modal header positioning */
+        .modal-header {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+        }
+        
+        .modal-title {
+            flex: 1;
+            margin-right: 1rem;
+            margin-bottom: 0;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .modal-header .btn-close {
+            margin-left: auto !important;
+            margin-right: 0 !important;
+            flex-shrink: 0;
+            order: 2;
+        }
+    </style>
+@endpush
+
 @section('title', 'Careers | Software Makers Limited Company')
 
 @section('content')
@@ -113,7 +155,7 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form id="jobApplicationForm{{ $career->id }}" action="{{ route('career-form-email', $career->id) }}" method="POST" enctype="multipart/form-data">
+                                    <form id="jobApplicationForm{{ $career->id }}" class="apply-form" action="{{ route('career-form-email', $career->id) }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <input type="hidden" id="jobPosition" name="job_position" value="">
                                         <div class="row">
@@ -267,7 +309,32 @@
             }
         });
     </script>
-    <!-- Copy Protection Script -->
+    <!-- Careers Page Script -->
+    @php
+        $jobsData = $careers->map(function($career) {
+            return [
+                'id' => $career->id,
+                'name' => $career->name,
+                'description' => $career->description ?? '',
+                'requirements' => $career->requirements ?? '',
+                'benefits' => $career->benefits ?? '',
+                'state' => 'recruit'
+            ];
+        })->values();
+    @endphp
+    <script>
+        // Global variables - Load jobs from server
+        let allJobs = @json($jobsData);
+
+        // Job Management Functions
+        function createJobCard(job) {
+            // Check if this is a custom job (has description but no requirements/benefits, or empty requirements/benefits)
+            const isCustomJob = job.description && (!job.requirements || job.requirements === '') && (!job.benefits || job.benefits === '');
+            
+            console.log('Creating card for job:', job.name, 'isCustomJob:', isCustomJob);
+            
+            // Escape HTML to prevent XSS
+            const escapeHtml = (text) => {
                 const div = document.createElement('div');
                 div.textContent = text;
                 return div.innerHTML;
@@ -455,24 +522,26 @@
             };
         }
 
-        async function loadJobs() {
-            showLoadingState();
-            
-            try {
-                // Load custom jobs from server database
-                const customJobs = await loadCustomJobs();
-                console.log('Custom jobs loaded:', customJobs);
-                const convertedCustomJobs = customJobs.map(convertCustomJob);
-                console.log('Converted custom jobs:', convertedCustomJobs);
-                
-                allJobs = convertedCustomJobs;
-                console.log('All jobs:', allJobs);
-                console.log('Total jobs:', allJobs.length);
+        function loadJobs() {
+            // Jobs are already loaded from server in allJobs variable
+            // Only update display if needed (e.g., for filtering/searching)
+            if (allJobs && allJobs.length > 0) {
                 displayJobs(allJobs);
                 updateJobCounts();
-            } catch (error) {
-                console.error('Error loading jobs:', error);
-                showErrorState('Failed to fetch roles from the database.');
+            } else {
+                // If no jobs, show empty state
+                const container = document.getElementById('jobsContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="col-lg-12 text-center">
+                            <div class="no-results">
+                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                <h4>No jobs available at the moment</h4>
+                                <p class="text-muted">Please try again later</p>
+                            </div>
+                        </div>
+                    `;
+                }
             }
         }
 
@@ -508,8 +577,9 @@
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            // Load jobs from server database
-            loadJobs();
+            // Jobs are already displayed from server-side Blade rendering
+            // Only call loadJobs if you need to refresh or filter
+            // loadJobs();
             
             // Initialize job application modal
             initializeJobApplicationModal();
